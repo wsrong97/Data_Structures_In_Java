@@ -1,4 +1,4 @@
-package MAIN;
+package Main;
 
 public class MainTest{
     public static void main(String[] argv){
