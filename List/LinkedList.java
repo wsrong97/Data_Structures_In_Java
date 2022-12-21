@@ -37,9 +37,10 @@ public class LinkedList<T> implements List<T> {
             _value = value;
             _valueInitialized = true;
         }
-        public void setNext(Node<E> node){
-            _next=node;
-            _nextInitialized=true;
+
+        public void setNext(Node<E> node) {
+            _next = node;
+            _nextInitialized = true;
         }
 
         public boolean initialized() {
@@ -102,13 +103,13 @@ public class LinkedList<T> implements List<T> {
     @Override
     public void insert(int i, T element) throws DataStructureException {
         if (i < 0 || i > _size) throw new DataStructureException("Index out of range.");
-        try {
-            Node<T> tmp = nodeAt(i - 1);
-            Node<T> toBeInserted = new Node<T>(element,tmp.next());
-            tmp.setNext(toBeInserted);
+        if(i==0){
+            _head = new Node<T>(element, _head);
         }
-        catch (DataStructureException e){
-            _head=new Node<T>(element,new Node<T>());
+        else{
+            Node<T> tmp = nodeAt(i - 1);
+            Node<T> toBeInserted = new Node<T>(element, tmp.next());
+            tmp.setNext(toBeInserted);
         }
         _size++;
     }
@@ -116,34 +117,40 @@ public class LinkedList<T> implements List<T> {
     @Override
     public void remove(int i) throws DataStructureException {
         checkIndex(i);
-        Node<T> tmp=nodeAt(i-1);
-        tmp.setNext(tmp.next().next());
+        if (i == 0) {
+            _head = _head.next();
+        } else {
+            Node<T> tmp = nodeAt(i - 1);
+            tmp.setNext(tmp.next().next());
+        }
         _size--;
     }
 
     @Override
     public int find(T e) throws DataStructureException {
-        Node<T> tmp=_head;
+        Node<T> tmp = _head;
         for (int i = 0; i < _size; i++) {
-            if(tmp.value().equals(e)){
+            if (tmp.value().equals(e)) {
                 return i;
             }
-            tmp=tmp.next();
+            tmp = tmp.next();
         }
         return -1;
     }
+
     public void append(T element) throws DataStructureException {
-        insert(_size,element);
+        insert(_size, element);
     }
 
     @Override
     public LinkedList<Integer> findAll(T e) throws DataStructureException {
-        LinkedList<Integer> res=new LinkedList<Integer>();
-        Node<T> tmp=_head;
+        LinkedList<Integer> res = new LinkedList<Integer>();
+        Node<T> tmp = _head;
         for (int i = 0; i < _size; i++) {
-            if(tmp.value().equals(e)){
+            if (tmp.value().equals(e)) {
                 res.append(i);
             }
+            tmp = tmp.next();
         }
         return res;
     }
@@ -153,18 +160,19 @@ public class LinkedList<T> implements List<T> {
             throw new DataStructureException("Index out of range");
         }
     }
-    public String toString(){
+
+    public String toString() {
         if (isEmpty()) return "";
-        String res=new String();
-        Node<T> tmp=_head;
-        for (int i = 0; i < _size-1; i++) {
+        String res = new String();
+        Node<T> tmp = _head;
+        for (int i = 0; i < _size - 1; i++) {
             try {
-                res += tmp.value().toString()+" ";
+                res += tmp.value().toString() + " ";
             } catch (DataStructureException e) {
                 throw new RuntimeException(e);
             }
             try {
-                tmp=tmp.next();
+                tmp = tmp.next();
             } catch (DataStructureException e) {
                 throw new RuntimeException(e);
             }
