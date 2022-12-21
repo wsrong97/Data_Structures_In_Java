@@ -72,8 +72,9 @@ public class ArrayList<T> implements List<T> {
     }
 
     @Override
-    public void remove(int i) throws DataStructureException {
+    public T remove(int i) throws DataStructureException {
         checkIndex(i);
+        T res=_elements[i];
         for (int j = i; j < _size - 1; j++) {
             _elements[j] = _elements[j + 1];
         }
@@ -86,6 +87,7 @@ public class ArrayList<T> implements List<T> {
             }
             _elements = tmp;
         }
+        return res;
     }
 
     @Override

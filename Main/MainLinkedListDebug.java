@@ -28,5 +28,6 @@ public class MainLinkedListDebug {
       System.out.println("linkedList1="+linkedList1);
       linkedList1.insert(linkedList.size()-1,92);
       System.out.println("linkedList1="+linkedList1);
+      System.out.println("linkedList1.get(3)="+linkedList1.get(3));
    }
 }

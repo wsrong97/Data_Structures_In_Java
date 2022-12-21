@@ -115,15 +115,19 @@ public class LinkedList<T> implements List<T> {
     }
 
     @Override
-    public void remove(int i) throws DataStructureException {
+    public T remove(int i) throws DataStructureException {
         checkIndex(i);
+        T res;
         if (i == 0) {
             _head = _head.next();
+            res=_head.value();
         } else {
             Node<T> tmp = nodeAt(i - 1);
+            res=tmp.next().value();
             tmp.setNext(tmp.next().next());
         }
         _size--;
+        return res;
     }
 
     @Override
