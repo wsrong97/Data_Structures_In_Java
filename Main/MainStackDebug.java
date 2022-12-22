@@ -5,8 +5,6 @@ import List.ArrayList;
 import List.LinkedList;
 import Stack.Stack;
 
-import java.util.HashMap;
-
 public class MainStackDebug {
     public static void main(String[] argv) throws DataStructureException {
         Stack<Double, ArrayList<Double>> stack=new Stack<Double, ArrayList<Double>>(ArrayList<Double>::new);
