@@ -7,7 +7,7 @@ import Stack.Stack;
 
 public class MainStackDebug {
     public static void main(String[] argv) throws DataStructureException {
-        Stack<Double, ArrayList<Double>> stack=new Stack<Double, ArrayList<Double>>(ArrayList<Double>::new);
+        Stack<Double, ArrayList<Double>> stack=new Stack<Double, ArrayList<Double>>(ArrayList::new);
         for (int i = 0; i < 10; i++) {
             stack.push((double)i);
         }
@@ -21,7 +21,7 @@ public class MainStackDebug {
         }
         System.out.println("stack="+stack);
 
-        Stack<Double, LinkedList<Double>> stack1=new Stack<Double, LinkedList<Double>>(LinkedList<Double>::new);
+        Stack<Double, LinkedList<Double>> stack1=new Stack<Double, LinkedList<Double>>(LinkedList::new);
         for (int i = 0; i < 10; i++) {
             stack1.push((double)i);
         }
