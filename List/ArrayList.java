@@ -74,13 +74,13 @@ public class ArrayList<T> implements List<T> {
     @Override
     public T remove(int i) throws DataStructureException {
         checkIndex(i);
-        T res=_elements[i];
+        T res = _elements[i];
         for (int j = i; j < _size - 1; j++) {
             _elements[j] = _elements[j + 1];
         }
         _size--;
         if (_size < _length / 4) {
-            _length /= 2;
+            _length = _length / 2 + 1;
             T[] tmp = (T[]) new Object[_length];
             for (int j = 0; j < _size; j++) {
                 tmp[j] = _elements[j];
@@ -108,21 +108,36 @@ public class ArrayList<T> implements List<T> {
     public ArrayList<Integer> findAll(T e) throws DataStructureException {
         ArrayList<Integer> res = new ArrayList<Integer>();
         for (int i = 0; i < _size; i++) {
-            if(_elements[i].equals(e)){
+            if (_elements[i].equals(e)) {
                 res.append(i);
             }
         }
         return res;
     }
 
+    @Override
+    public void resize(int size) throws DataStructureException {
+        if(size==0) throw new DataStructureException("Resize cannot be 0");
+        if (_size > size) {
+            System.out.println("The input size is less than the number of elements in the list! Some data will be lost");
+        }
+        int tmpSize=Math.min(size,_size);
+        T[] tmp = (T[]) new Object[size];
+        for (int i = 0; i < tmpSize; i++) {
+            tmp[i] = _elements[i];
+        }
+        _size=size;
+        _elements = tmp;
+    }
+
     public void checkIndex(int i) throws DataStructureException {
         if (i < 0 || i >= _size) {
-            throw new DataStructureException("Index out of range");
+            throw new DataStructureException("Index "+i+" out of range "+_size);
         }
     }
 
     public String toString() {
-        if(isEmpty()) return "";
+        if (isEmpty()) return "";
         StringBuilder res = new StringBuilder(new String());
         for (int i = 0; i < _size - 1; i++) {
             res.append(_elements[i].toString()).append(" ");

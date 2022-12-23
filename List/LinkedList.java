@@ -159,9 +159,25 @@ public class LinkedList<T> implements List<T> {
         return res;
     }
 
+    @Override
+    public void resize(int size) throws DataStructureException {
+        if(size==0) throw new DataStructureException("Resize cannot be 0");
+        if(_size>size){
+            System.out.println("The input size is less than the number of elements in the list! Some data will be lost");
+            Node<T> tmp=nodeAt(size);
+            tmp.setNext(new Node<T>());
+            _size = size;
+        }
+        else{
+            int tmpSize=_size;
+            for (int i = 0; i < size - tmpSize; i++) {
+                append((T)new Object());
+            }
+        }
+    }
     public void checkIndex(int i) throws DataStructureException {
         if (i < 0 || i >= _size) {
-            throw new DataStructureException("Index out of range");
+            throw new DataStructureException("Index "+i+" out of range ("+_size+")");
         }
     }
 

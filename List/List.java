@@ -11,4 +11,5 @@ public interface List <T>{
     public T remove(int i) throws DataStructureException;
     public int find(T e) throws DataStructureException;
     public List<Integer> findAll(T e) throws DataStructureException;
+    public void resize(int size) throws DataStructureException;
 }

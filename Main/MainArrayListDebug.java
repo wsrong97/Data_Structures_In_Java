@@ -34,5 +34,20 @@ public class MainArrayListDebug {
         System.out.println(arrayList2);
         System.out.println("allPos in arrayList2=");
         System.out.println(allPos);
+        ArrayList<Integer> arr = new ArrayList<Integer>();
+        for (int i = 0; i < 10; i++) {
+            arr.append(i);
+        }
+        System.out.println("arr="+arr);
+        arr.resize(5);
+        System.out.println("arr="+arr);
+        for (int i = 0; i < 5; i++) {
+            arr.remove(0) ;
+        }
+        System.out.println("arr="+arr);
+        for (int i = 0; i < 5; i++) {
+            arr.insert(0,(int)(Math.random()*100)) ;
+        }
+        System.out.println("arr="+arr);
     }
 }
