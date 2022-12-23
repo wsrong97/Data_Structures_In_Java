@@ -3,16 +3,15 @@ package Matrix;
 import ErrorHandling.DataStructureException;
 import List.List;
 
-import javax.xml.crypto.Data;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Comparator;
 import java.util.function.Supplier;
 
-public class DenseMatrix<T extends Number & Comparable<? super T>, L extends List<T>> extends Matrix<T, L> {
+public class DenseMatrix<T extends Number & Comparable<? super T>, L extends List<T>> implements Matrix<T, L,DenseMatrix<T,L>> {
     public DenseMatrix(Supplier<L> supplier, int rows, int cols) throws DataStructureException {
-        super(rows, cols);
         _data = supplier.get();
         _data.resize(rows * cols);
+        _rows=rows;
+        _cols=cols;
         _type = MatrixType.DenseRowMajorSingleList;
         _minId = -1;
         _maxId = -1;
@@ -20,19 +19,24 @@ public class DenseMatrix<T extends Number & Comparable<? super T>, L extends Lis
     }
 
     public DenseMatrix(L list, int rows, int cols) throws DataStructureException, InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
-        super(list, rows, cols);
+        _rows=rows;
+        _cols=cols;
+        init(list);
         _initMinMax();
         _type = MatrixType.DenseRowMajorSingleList;
+        _maxDigits=0;
     }
 
     public DenseMatrix(DenseMatrix<T, L> matrix) {
-        super(matrix);
         _data = matrix._data;
         _type = matrix._type;
         _max = matrix._max;
         _min = matrix._min;
         _maxId = matrix._maxId;
         _minId = matrix._minId;
+        _maxDigits=matrix._maxDigits;
+        _rows=matrix._rows;
+        _cols=matrix._cols;
     }
 
     private void _initMinMax() throws DataStructureException {
@@ -78,6 +82,19 @@ public class DenseMatrix<T extends Number & Comparable<? super T>, L extends Lis
     }
 
     @Override
+    public int rows() {
+       return _rows;
+    }
+
+    @Override
+    public int cols() {
+        return _cols;
+    }
+
+    public void set(Pos pos, T value) throws DataStructureException {
+        set(pos.row,pos.col,value);
+    }
+    @Override
     public void set(int row, int col, T value) throws DataStructureException {
         if (checkPos(row, col)) {
             _data.set(posToId(row, col), value);
@@ -113,7 +130,7 @@ public class DenseMatrix<T extends Number & Comparable<? super T>, L extends Lis
     }
 
     @Override
-    protected int posToId(int row, int col) throws DataStructureException {
+    public int posToId(int row, int col) throws DataStructureException {
         if (_type == MatrixType.DenseRowMajorSingleList) {
             return row * _cols + col;
         } else if (_type == MatrixType.DenseColumnMajorSingleList) {
@@ -122,7 +139,12 @@ public class DenseMatrix<T extends Number & Comparable<? super T>, L extends Lis
     }
 
     @Override
-    protected Matrix<T, L>.Pos idToPos(int id) throws DataStructureException {
+    public int posToId(Pos pos) throws DataStructureException {
+        return 0;
+    }
+
+    @Override
+    public Pos idToPos(int id) throws DataStructureException {
         Pos pos = new Pos();
         if (_type == MatrixType.DenseRowMajorSingleList) {
             pos.row = id / _cols;
@@ -147,13 +169,38 @@ public class DenseMatrix<T extends Number & Comparable<? super T>, L extends Lis
     }
 
     @Override
-    public Matrix<T, L>.Pos maxPos() throws DataStructureException {
+    public Pos maxPos() throws DataStructureException {
         return idToPos(_maxId);
     }
 
     @Override
-    public Matrix<T, L>.Pos minPos() throws DataStructureException {
+    public Pos minPos() throws DataStructureException {
         return idToPos(_minId);
+    }
+
+    @Override
+    public DenseMatrix<T, L> inv(DenseMatrix<T, L> matrix) throws DataStructureException {
+        throw DataStructureException.FUNCTION_NOT_IMPLEMENTED();
+    }
+
+    @Override
+    public DenseMatrix<T, L> mul(DenseMatrix<T, L> matrix) throws DataStructureException {
+        throw DataStructureException.FUNCTION_NOT_IMPLEMENTED();
+    }
+
+    @Override
+    public DenseMatrix<T, L> sub(DenseMatrix<T, L> matrix) throws DataStructureException {
+        throw DataStructureException.FUNCTION_NOT_IMPLEMENTED();
+    }
+
+    @Override
+    public DenseMatrix<T, L> add(DenseMatrix<T, L> matrix) throws DataStructureException {
+        throw DataStructureException.FUNCTION_NOT_IMPLEMENTED();
+//        if(_rows!=matrix.rows()||_cols!=matrix.cols()) throw new DataStructureException(String.format("Matrix Addition cannot propagate between (%d,%d) and (%d,%d)",_rows,_cols,matrix.rows(),matrix.cols()));
+//        DenseMatrix<T,L> res=new DenseMatrix<T, L>(matrix);
+//        for (int i = 0; i < size(); i++) {
+//            res.set(idToPos(i),res.at(i).add(this.at(i)));
+//        }
     }
 
     @Override
@@ -173,7 +220,9 @@ public class DenseMatrix<T extends Number & Comparable<? super T>, L extends Lis
     }
 
     private L _data;
-    private int _maxDigits;
+    private int _maxDigits,_rows,_cols, _maxId, _minId;
+    private T _max, _min;
+    private MatrixType _type;
 
     public String toString() {
         String format = "%"+(_maxDigits+1+6)+".6f";
@@ -193,5 +242,11 @@ public class DenseMatrix<T extends Number & Comparable<? super T>, L extends Lis
             }
         }
         return res.toString();
+    }
+
+    @Override
+    public boolean checkPos(int row, int col){
+        if(row<0||row>_rows-1||col<0||col>_cols-1) return false;
+        else return true;
     }
 }
