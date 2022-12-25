@@ -7,5 +7,5 @@ public interface ListADT<E> {
     E set(int i, E e) throws IndexOutOfBoundsException;
     void add(int i, E e) throws IndexOutOfBoundsException;
     E remove(int i) throws IndexOutOfBoundsException;
-    int find(E e) throws IndexOutOfBoundsException;
+//    int find(E e) throws IndexOutOfBoundsException;
 }
