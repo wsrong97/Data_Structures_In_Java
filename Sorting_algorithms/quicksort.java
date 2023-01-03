@@ -14,35 +14,33 @@ public class quicksort {
     private static int partition(int[] arr, int start, int end) {
 
         int pivot = arr[end];  //partition using the last element of the array
-        int small_e = start; //before the index
-        int n_of_non_less = 0;
+        int small_e = start; // small_end represents the start of the larger half part.
+
+        /**
+         * Note that in the textbook, there is an easier way to write this algorithm, as follows.
+         * Notice the reason why arr[i]<= pivot we can always do swap is that if there is no larger part, the swap
+         * is swapping itself with itself. Is there a need to separate cases when there is a larger part and when there
+         * is not? Maybe in practice this issue has been considered( in the standard library), because
+         * we don't need to do this useless swapping every time(extra cost) before the advent of the larger
+         * part. But this algorithm written below is more concise.
+         */
         for (int i = start; i < end; i++) {
-            if (n_of_non_less > 0) {
-                if (arr[i] >= pivot) {
-                    n_of_non_less += 1;
-                }
-                else{
-                    //swap arr[small_e] with arr[i]
-                    int tmp = arr[i];
-                    arr[i] = arr[small_e];
-                    arr[small_e] = tmp;
-                    small_e += 1;
-                }
+
+            if (arr[i] <= pivot) {
+
+                //swap arr[small_e] with arr[i]
+                int tmp = arr[i];
+                arr[i] = arr[small_e];
+                arr[small_e] = tmp;
+                small_e += 1;
             }
-            else {
-                if(arr[i]>= pivot){
-                    n_of_non_less +=1;
-                }
-                else{
-                    small_e +=1;
-                }
-            }
+
         }
-        //return partition index(pivot position after partitioning. )
-        int tmp1= arr[small_e];
-        arr[end] = tmp1;
-        arr[small_e] = pivot;
-        return small_e;
+            //return partition index(pivot position after partitioning. )
+            int tmp1 = arr[small_e];
+            arr[end] = tmp1;
+            arr[small_e] = pivot;
+            return small_e;
     }
 
 }
