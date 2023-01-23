@@ -21,6 +21,11 @@ public class ArrayList<T> implements List<T> {
         _elements = arrayList._elements;
     }
 
+    public ArrayList(T[] data, int size){
+        _size=size;
+        _length=size;
+        _elements=data;
+    }
     private int _size;
     private int _length;
     private T[] _elements;

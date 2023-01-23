@@ -63,6 +63,12 @@ public class LinkedList<T> implements List<T> {
         _size = linkedList._size;
     }
 
+    public LinkedList(T[] data, int size) throws DataStructureException {
+        _head = new Node<T>();
+        for (int i = 0; i < size; i++) {
+            append(data[i]);
+        }
+    }
     private int _size;
     private Node<T> _head;
 

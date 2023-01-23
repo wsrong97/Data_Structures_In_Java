@@ -2,46 +2,50 @@ package Matrix;
 
 import ErrorHandling.DataStructureException;
 import List.List;
+import List.ArrayList;
+import jdk.jshell.DeclarationSnippet;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.function.Supplier;
 
-public class DenseMatrix<T extends Number & Comparable<? super T>, L extends List<T>> implements Matrix<T, L,DenseMatrix<T,L>> {
-    public DenseMatrix(Supplier<L> supplier, int rows, int cols) throws DataStructureException {
-        _data = supplier.get();
+public class DenseMatrix<T extends Number & Comparable<? super T>> implements Matrix<T, DenseMatrix<T>> {
+    public DenseMatrix(int rows, int cols) throws DataStructureException {
+        _data=new ArrayList<T>(rows*cols);
         _data.resize(rows * cols);
-        _rows=rows;
-        _cols=cols;
+        _rows = rows;
+        _cols = cols;
         _type = MatrixType.DenseRowMajorSingleList;
         _minId = -1;
         _maxId = -1;
-        _maxDigits=0;
+        _maxDigits = 0;
     }
 
-    public DenseMatrix(L list, int rows, int cols) throws DataStructureException, InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
-        _rows=rows;
-        _cols=cols;
+    public DenseMatrix(ArrayList<T> list, int rows, int cols) throws DataStructureException, InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
+        _rows = rows;
+        _cols = cols;
+        _minId = -1;
+        _maxId = -1;
         init(list);
         _initMinMax();
         _type = MatrixType.DenseRowMajorSingleList;
-        _maxDigits=0;
+        _maxDigits = 0;
     }
 
-    public DenseMatrix(DenseMatrix<T, L> matrix) {
-        _data = matrix._data;
+    public DenseMatrix(DenseMatrix<T> matrix) {
+        _data = new ArrayList<T>(matrix._data);
         _type = matrix._type;
         _max = matrix._max;
         _min = matrix._min;
         _maxId = matrix._maxId;
         _minId = matrix._minId;
-        _maxDigits=matrix._maxDigits;
-        _rows=matrix._rows;
-        _cols=matrix._cols;
+        _maxDigits = matrix._maxDigits;
+        _rows = matrix._rows;
+        _cols = matrix._cols;
     }
 
     private void _initMinMax() throws DataStructureException {
         for (int i = 0; i < _data.size(); i++) {
-            _maxDigits=Math.max(_maxDigits,String.valueOf(_data.get(i).intValue()).length());
+            _maxDigits = Math.max(_maxDigits, String.valueOf(_data.get(i).intValue()).length());
             if (_maxId == -1) {
                 _max = _data.get(i);
             } else {
@@ -60,7 +64,7 @@ public class DenseMatrix<T extends Number & Comparable<? super T>, L extends Lis
     }
 
     private void _updateMinMax(int row, int col, T value) throws DataStructureException {
-        _maxDigits=Math.max(_maxDigits,String.valueOf(_data.get(posToId(row,col)).intValue()).length());
+        _maxDigits = Math.max(_maxDigits, String.valueOf(_data.get(posToId(row, col)).intValue()).length());
         if (_maxId == -1) {
             _max = value;
             _maxId = posToId(row, col);
@@ -83,7 +87,7 @@ public class DenseMatrix<T extends Number & Comparable<? super T>, L extends Lis
 
     @Override
     public int rows() {
-       return _rows;
+        return _rows;
     }
 
     @Override
@@ -92,8 +96,9 @@ public class DenseMatrix<T extends Number & Comparable<? super T>, L extends Lis
     }
 
     public void set(Pos pos, T value) throws DataStructureException {
-        set(pos.row,pos.col,value);
+        set(pos.row, pos.col, value);
     }
+
     @Override
     public void set(int row, int col, T value) throws DataStructureException {
         if (checkPos(row, col)) {
@@ -122,10 +127,9 @@ public class DenseMatrix<T extends Number & Comparable<? super T>, L extends Lis
     }
 
     @Override
-    public void init(L list) throws DataStructureException, InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+    public void init(ArrayList<T> list) throws DataStructureException, InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         if (list.size() != _rows * _cols)
             throw new DataStructureException("Input list size doesn't match with input rows and cols (" + list.size() + ")!=(" + _rows + ", " + _cols + ").");
-//        _data = (L) list.getClass().getConstructor(list.getClass()).newInstance(list);
         _data = list;
     }
 
@@ -179,28 +183,124 @@ public class DenseMatrix<T extends Number & Comparable<? super T>, L extends Lis
     }
 
     @Override
-    public DenseMatrix<T, L> inv(DenseMatrix<T, L> matrix) throws DataStructureException {
+    public DenseMatrix<T> inv(DenseMatrix<T> matrix) throws DataStructureException {
         throw DataStructureException.FUNCTION_NOT_IMPLEMENTED();
     }
 
     @Override
-    public DenseMatrix<T, L> mul(DenseMatrix<T, L> matrix) throws DataStructureException {
-        throw DataStructureException.FUNCTION_NOT_IMPLEMENTED();
+    public DenseMatrix<T> mul(DenseMatrix<T> matrix) throws DataStructureException {
+        if (_cols != matrix.rows())
+            throw new DataStructureException(String.format("Matrix Addition cannot propagate between (%d,%d) and (%d,%d)", _rows, _cols, matrix.rows(), matrix.cols()));
+        if (size() == 0) throw new DataStructureException("Empty Matrix!");
+        DenseMatrix<T> res = new DenseMatrix<T>(_rows,matrix.cols());
+        if (matrix.at(0) instanceof Integer)
+            for (int i = 0; i < _rows; i++) {
+                for (int j = 0; j < matrix.cols(); j++) {
+                    Integer tmp=0;
+                    for (int k = 0; k < _cols; k++) {
+                        tmp+=at(i,k).intValue()*matrix.at(k,j).intValue();
+                    }
+                    res.set(i,j,(T)tmp);
+                }
+            }
+        else if (matrix.at(0) instanceof Double)
+            for (int i = 0; i < _rows; i++) {
+                for (int j = 0; j < matrix.cols(); j++) {
+                    Double tmp=0.;
+                    for (int k = 0; k < _cols; k++) {
+                        tmp+=at(i,k).doubleValue()*matrix.at(k,j).doubleValue();
+                    }
+                    res.set(i,j,(T)tmp);
+                }
+            }
+        else if (matrix.at(0) instanceof Long)
+            for (int i = 0; i < _rows; i++) {
+                for (int j = 0; j < matrix.cols(); j++) {
+                    Long tmp= 0L;
+                    for (int k = 0; k < _cols; k++) {
+                        tmp+=at(i,k).longValue()*matrix.at(k,j).longValue();
+                    }
+                    res.set(i,j,(T)tmp);
+                }
+            }
+        else if (matrix.at(0) instanceof Float)
+            for (int i = 0; i < _rows; i++) {
+                for (int j = 0; j < matrix.cols(); j++) {
+                    Float tmp= 0.F;
+                    for (int k = 0; k < _cols; k++) {
+                        tmp+=at(i,k).floatValue()*matrix.at(k,j).floatValue();
+                    }
+                    res.set(i,j,(T)tmp);
+                }
+            }
+        else {
+            throw new DataStructureException("Unknown Number Type!");
+        }
+        return res;
     }
 
     @Override
-    public DenseMatrix<T, L> sub(DenseMatrix<T, L> matrix) throws DataStructureException {
-        throw DataStructureException.FUNCTION_NOT_IMPLEMENTED();
+    public DenseMatrix<T> mul(T num) throws DataStructureException {
+        DenseMatrix<T> res=new DenseMatrix<T>(this);
+        for (int i = 0; i < size(); i++) {
+            res.set(idToPos(i),(T)new Double(num.doubleValue()*res.at(i).doubleValue()));
+        }
+        return res;
     }
 
     @Override
-    public DenseMatrix<T, L> add(DenseMatrix<T, L> matrix) throws DataStructureException {
-        throw DataStructureException.FUNCTION_NOT_IMPLEMENTED();
-//        if(_rows!=matrix.rows()||_cols!=matrix.cols()) throw new DataStructureException(String.format("Matrix Addition cannot propagate between (%d,%d) and (%d,%d)",_rows,_cols,matrix.rows(),matrix.cols()));
-//        DenseMatrix<T,L> res=new DenseMatrix<T, L>(matrix);
-//        for (int i = 0; i < size(); i++) {
-//            res.set(idToPos(i),res.at(i).add(this.at(i)));
-//        }
+    public DenseMatrix<T> sub(DenseMatrix<T> matrix) throws DataStructureException {
+        if (_rows != matrix.rows() || _cols != matrix.cols())
+            throw new DataStructureException(String.format("Matrix Addition cannot propagate between (%d,%d) and (%d,%d)", _rows, _cols, matrix.rows(), matrix.cols()));
+        if (size() == 0) throw new DataStructureException("Empty Matrix!");
+        return add(matrix.mul((T)new Double(-1.)));
+    }
+
+    @Override
+    public DenseMatrix<T> sub(T num) throws DataStructureException {
+        DenseMatrix<T> res=new DenseMatrix<T>(_rows,_cols);
+        for (int i = 0; i < size(); i++) {
+            res.set(idToPos(i),(T)new Double(this.at(i).doubleValue()-num.doubleValue()));
+        }
+        return res;
+    }
+
+    @Override
+    public DenseMatrix<T> add(DenseMatrix<T> matrix) throws DataStructureException {
+//        throw DataStructureException.FUNCTION_NOT_IMPLEMENTED();
+        if (_rows != matrix.rows() || _cols != matrix.cols())
+            throw new DataStructureException(String.format("Matrix Addition cannot propagate between (%d,%d) and (%d,%d)", _rows, _cols, matrix.rows(), matrix.cols()));
+        if (size() == 0) throw new DataStructureException("Empty Matrix!");
+        DenseMatrix<T> res = new DenseMatrix<T>(_rows,_cols);
+        if (matrix.at(0) instanceof Integer)
+            for (int i = 0; i < size(); i++) {
+                res.set(idToPos(i), (T) new Integer(matrix.at(i).intValue() + this.at(i).intValue()));
+            }
+        else if (matrix.at(0) instanceof Double)
+            for (int i = 0; i < size(); i++) {
+                res.set(idToPos(i), (T) new Double(matrix.at(i).doubleValue() + this.at(i).doubleValue()));
+            }
+        else if (matrix.at(0) instanceof Long)
+            for (int i = 0; i < size(); i++) {
+                res.set(idToPos(i), (T) new Long(matrix.at(i).longValue() + this.at(i).longValue()));
+            }
+        else if (matrix.at(0) instanceof Float)
+            for (int i = 0; i < size(); i++) {
+                res.set(idToPos(i), (T) new Float(matrix.at(i).floatValue() + this.at(i).floatValue()));
+            }
+        else {
+            throw new DataStructureException("Unknown Number Type!");
+        }
+        return res;
+    }
+
+    @Override
+    public DenseMatrix<T> add(T num) throws DataStructureException {
+        DenseMatrix<T> res=new DenseMatrix<T>(this);
+        for (int i = 0; i < size(); i++) {
+            res.set(idToPos(i),(T)new Double(res.at(i).doubleValue()+num.doubleValue()));
+        }
+        return res;
     }
 
     @Override
@@ -213,19 +313,17 @@ public class DenseMatrix<T extends Number & Comparable<? super T>, L extends Lis
 //        _type = type;
     }
 
-    public DenseMatrix<T, L> changeMatrixType(MatrixType type) throws DataStructureException {
+    public DenseMatrix<T> changeMatrixType(MatrixType type) throws DataStructureException {
         throw DataStructureException.FUNCTION_NOT_IMPLEMENTED();
-//        DenseMatrix<T, L> mat = new DenseMatrix<T, L>(this);
-//        return mat;
     }
 
-    private L _data;
-    private int _maxDigits,_rows,_cols, _maxId, _minId;
+    private ArrayList<T> _data;
+    private int _maxDigits, _rows, _cols, _maxId, _minId;
     private T _max, _min;
     private MatrixType _type;
 
     public String toString() {
-        String format = "%"+(_maxDigits+1+6)+".6f";
+        String format = "%" + (_maxDigits + 1 + 6) + ".6f";
         StringBuilder res = new StringBuilder();
         for (int i = 0; i < _rows; i++) {
             for (int j = 0; j < _cols - 1; j++) {
@@ -245,8 +343,14 @@ public class DenseMatrix<T extends Number & Comparable<? super T>, L extends Lis
     }
 
     @Override
-    public boolean checkPos(int row, int col){
-        if(row<0||row>_rows-1||col<0||col>_cols-1) return false;
+    public boolean checkPos(int row, int col) {
+        if (row < 0 || row > _rows - 1 || col < 0 || col > _cols - 1) return false;
         else return true;
+    }
+
+    public void setAll(T num) throws DataStructureException {
+        for (int i = 0; i < size(); i++) {
+            set(idToPos(i),num);
+        }
     }
 }
